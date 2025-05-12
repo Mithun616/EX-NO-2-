@@ -35,9 +35,64 @@ STEP-5: Display the obtained cipher text.
 
 
 Program:
+~~~
+def generate_key_square(key):
+    key = "".join(dict.fromkeys(key.upper().replace("J", "I")))
+    alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    key += "".join([c for c in alphabet if c not in key])
+    return [list(key[i:i+5]) for i in range(0, 25, 5)]
 
+def find_position(square, letter):
+    for r, row in enumerate(square):
+        if letter in row:
+            return r, row.index(letter)
 
+def prepare_text(text):
+    text = text.upper().replace("J", "I").replace(" ", "")
+    new_text = ""
+    i = 0
+    while i < len(text):
+        a = text[i]
+        b = text[i+1] if i+1 < len(text) else "X"
+        if a == b:
+            new_text += a + "X"
+            i += 1
+        else:
+            new_text += a + b
+            i += 2
+    return new_text
 
+def playfair(text, key, encrypt=True):
+    square = generate_key_square(key)
+    text = prepare_text(text)
+    result = ""
+    for i in range(0, len(text), 2):
+        r1, c1 = find_position(square, text[i])
+        r2, c2 = find_position(square, text[i+1])
+        if r1 == r2:
+            result += square[r1][(c1 + (1 if encrypt else -1)) % 5] + square[r2][(c2 + (1 if encrypt else -1)) % 5]
+        elif c1 == c2:
+            result += square[(r1 + (1 if encrypt else -1)) % 5][c1] + square[(r2 + (1 if encrypt else -1)) % 5][c2]
+        else:
+            result += square[r1][c2] + square[r2][c1]
+    return result
 
+key = "Monarchy"
+plaintext = "instruments"
+ciphertext = playfair(plaintext, key, True)
+decrypted = playfair(ciphertext, key, False)
 
+print("Key:", key)
+print("Plaintext:", plaintext)
+print("Ciphertext:", ciphertext)
+print("Decrypted:", decrypted)
+~~~
 Output:
+Output:
+Key text: Monarchy Plain text: instruments Cipher text: gatlmzclrqtx
+
+![Screenshot 2025-03-19 090606](https://github.com/user-attachments/assets/ee615056-c2b8-4693-adce-ec486e699ce9)
+## RESULT:
+The program is executed successfully
+
+
